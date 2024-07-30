@@ -1,0 +1,131 @@
+
+# Using Multer and Cloudinary for File Uploads
+
+## I. Objective
+The goal is to create a file upload system using Express.js, Multer for handling file uploads, and Cloudinary for storing files. We will focus on uploading files as base64 encoded strings to Cloudinary.
+
+## II. References
+- [Multer Documentation](https://www.npmjs.com/package/multer)
+- [Cloudinary Documentation](https://cloudinary.com/documentation)
+- [Node.js Documentation](https://nodejs.org/en)
+- [Upload via Base64 Data URI on Cloudinary](https://cloudinary.com/documentation/upload_parameters#upload_via_a_base_64_data_uri)
+
+## III. Theoretical Foundation
+File upload functionality is a common requirement in web applications, enabling users to upload various file types such as images, documents, and more. Using Multer and Cloudinary simplifies handling file uploads and storage, providing robust features like secure URL generation and transformation.
+
+## IV. Requirements
+1. **Software:**
+   - Node.js (LTS version recommended)
+   - Cloudinary account
+2. **Knowledge:**
+   - Basic JavaScript and Express.js
+
+## V. Procedural Steps
+
+### Step 1: Setup Project
+1. Initialize a new Node.js project and install necessary dependencies:
+   ```bash
+   mkdir file-upload
+   cd file-upload
+   npm init -y
+   npm install express multer cloudinary dotenv
+   ```
+
+### Step 2: Configure Cloudinary
+1. Register for a Cloudinary account [here](https://cloudinary.com/users/register_free).
+2. Get API keys from the Cloudinary dashboard:
+   - Navigate to `Settings` > `API Keys`, you will see config options like following
+      ![2.1 Api key page in cloudinary website](/file-upload-multer-cloudinary/images/api-identification.png)
+   - Access `api_secret` by confirming through email verification.
+3. Create a `.env` file in the root directory to store your Cloudinary credentials:
+   ![2.2 .env file placement](/file-upload-multer-cloudinary/images/dotenv-placement.png)
+   ```env
+   CLOUDINARY_CLOUD_NAME=your_cloud_name
+   CLOUDINARY_API_KEY=your_api_key
+   CLOUDINARY_API_SECRET=your_api_secret
+   ```
+
+### Step 3: Create File `app.js`
+1. **Load Environment Variables:**
+   dotenv config should be invoked, it securely stores api key here are the code to bring env variable to Node.js runtime
+   ```javascript
+   const dotenv = require('dotenv');
+   dotenv.config();
+   ```
+2. **Configure Cloudinary:**
+   here is the usage of using .env and setting up cloudinary environment, check the reference [here](https://cloudinary.com/documentation/node_configuration_tutorial#configure_cloudinary)
+   ```javascript
+   const cloudinary = require('cloudinary').v2;
+   cloudinary.config({
+     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+     api_key: process.env.CLOUDINARY_API_KEY,
+     api_secret: process.env.CLOUDINARY_API_SECRET,
+   });
+   ```
+3. **Setup Multer for File Handling:**
+   To get the file from the request, we have to use multer to parsing from the form-data we have to use multer memoryStorage because we need the buffer. the other option we can use multer.diskStorage(), but it would save the file to our local folder, and we can send it with a different method
+   ```javascript
+   const multer = require('multer');
+   const upload = multer({ storage: multer.memoryStorage() });
+   ```
+4. **Assign Multer Middleware:**
+   Then, we place the upload method as express middleware before the handler
+   ```jsx
+   // The name "file" in upload.single('file'), should be match
+   // with the property name of the file on request, or it would fail.
+   app.post('/api/upload', upload.single('file'), Controller.uploadSingleFile);
+   ```
+5. **Transform File to base64**
+   Then, we can get the file from the request that multer has forwarded to, because we are using `memoryStorage` from multer, we got the buffer property which is the content of the file. the file we got from the body-parser (multer) should transform it to base64 to upload. you can see the docs [here](https://cloudinary.com/documentation/upload_parameters#upload_via_a_base_64_data_uri)
+   ```jsx
+   const file = req.file;
+   const base64File = file.buffer.toString('base64');
+   ```
+6. **Format the base64 to dataURI**
+   we have to form the dataURI to send it to the cloudinary server, dataURI format is documented [here](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/Data_URLs)
+   ```jsx
+   const data = `data:${file.mimetype};base64,${base64File}`;
+   const uploadResponse = await cloudinary.uploader.upload(data);
+   ```
+7. **Get Image URL** <br />
+   in `uploadResponse` data object, you can check the response object from cloudinary [here](https://cloudinary.com/documentation/upload_images#upload_response). <br />
+
+   ```jsx
+   res.json({ url: uploadResponse.secure_url });
+   ```
+   the best usability of url given from cloudinary is secure_url its https version and more secure for public access
+
+8. **Start Server:**
+   ```javascript
+   app.listen(3000, () => {
+     console.log('Server started on http://localhost:3000');
+   });
+   ```
+
+### Step 4: Full `app.js` File
+<iframe
+  src="https://codesandbox.io/p/devbox/59xwp5?embed=1&file=%2Fsrc%2Findex.js"
+  style={{
+    width: "100%",
+    height: 500,
+    border: 0,
+    borderRadius: 10,
+    overflow: "hidden"
+  }}
+  title="file-upload-server"
+  allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
+  sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+/>
+
+
+## VI. Result
+
+Upon completing these steps, you will have a functional file upload system that processes files using Multer and stores them in Cloudinary as base64 encoded strings.
+- The system leverages Cloudinary's secure URL feature for safe public access.
+- Multer's `memoryStorage` is used to handle file uploads directly in memory, ensuring fast processing and secure handling.
+- The conversion to base64 and subsequent upload to Cloudinary provides a straightforward method for storing files in the cloud.
+
+## VII. Common Mistakes
+- Not matching the file property name in the form-data with the one used in `upload.single('file')`.
+- Forgetting to load environment variables using `dotenv.config()`.
+- Misconfiguration of Cloudinary credentials, leading to authentication errors.

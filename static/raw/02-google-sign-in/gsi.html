@@ -1,0 +1,29 @@
+<html lang="en">
+<body>
+<script src="https://accounts.google.com/gsi/client" async></script>
+<script>
+  function handleCredentialResponse(response) {
+    // when callback is called, the user has either signed in or declined to sign in
+    console.log("Encoded JWT ID token: " + response.credential);
+  }
+  window.onload = function () {
+    google.accounts.id.initialize({
+      // fill this with your own client ID
+      client_id: "YOUR_GOOGLE_CLIENT_ID",
+      // callback function to handle the response
+      callback: handleCredentialResponse
+    });
+    google.accounts.id.renderButton(
+      // HTML element ID where the button will be rendered
+      // this should be exist in the DOM
+      document.getElementById("buttonDiv"),
+      // customization attributes
+      { theme: "outline", size: "large" }
+    );
+    // to display the One Tap dialog, or comment to remove the dialog
+    google.accounts.id.prompt();
+  }
+</script>
+<div id="buttonDiv"></div>
+</body>
+</html>

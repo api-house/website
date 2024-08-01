@@ -1,0 +1,439 @@
+# Google Sign In
+
+## Objective
+
+To create a web application that allows users to log in using their Google account. The backend will be built using Express and Sequelize for managing user data, while the frontend will utilize React and NativeScript JS for the Google Sign-In (GSI) implementation.
+
+## References
+
+- [Google Identity Services Documentation](https://developers.google.com/identity/gsi/web/guides/overview)
+- [Express.js Documentation](https://expressjs.com/)
+- [Sequelize Documentation](https://sequelize.org/)
+- [React Documentation](https://react.dev/)
+
+## Theoretical Foundation
+Google Identity Services (GSI) provides an easy and secure way for users to authenticate using their Google accounts. The flow typically involves:
+- **Client Side**: Users click a Google Sign-In button, triggering a sign-in request to Google.
+- **Google Authentication**: Google verifies the user's credentials and returns an ID token.
+- **Server Side**: The server verifies the ID token, checks if the user exists, and if not, creates a new user record.
+- **Token Generation**: The server generates a JWT token for the user and sends it back to the client.
+
+## Requirements
+### Software & Tools
+- **Node.js**: JavaScript runtime for server-side development.
+- **Express.js**: Web framework for building the server.
+- **Sequelize**: ORM for interacting with the PostgreSQL database.
+- **PostgreSQL**: Relational database system.
+- **React**: JavaScript library for building the frontend.
+- **Google Developer Console**: For getting OAuth 2.0 credentials.
+### Knowledge
+- **JavaScript**: Basic understanding, including ES6+ syntax.
+- **Node.js & Express**: Familiarity with building server-side applications.
+- **React**: Experience with frontend development.
+- **Database Management**: Basic understanding of SQL and using Sequelize.
+
+## Procedural Steps
+
+### [Set Up Google OAuth in Google Developer Console](https://developers.google.com/identity/gsi/web/guides/get-google-api-clientid)
+
+:::info Result
+After this step, you will obtain the OAuth 2.0 `client_id` and `client_secret` from the Google Developer Console. Save them to your .env file.
+:::
+1. First, obtain your `client_id`. [You can check the guide here](https://developers.google.com/identity/gsi/web/guides/get-google-api-clientid#get_your_google_api_client_id)
+2. Open the **Credentials** page on the [Google Developer Console](https://console.cloud.google.com/apis/dashboard).
+3. If this is your first time using the Google Developer Console, create a new project.
+4. On the `Enable APIs and Services` page, search for `Create Project`. It should appear in the top right corner.
+  <figure>
+    ![1.1 Create a new project in the Dashboard](/social-media-sign-in/google/images/create-project.png)
+    <figcaption>1.1 Create a new project in the Dashboard</figcaption>
+  </figure>
+5. After you click `Create Project`, a popup will appear displaying a list of your projects.
+6. Then, click the `New Project` button to create a new project.
+  <figure>
+    ![1.2 Creating a Project](/social-media-sign-in/google/images/new-project.png)
+    <figcaption>1.2 Creating a Project</figcaption>
+  </figure>
+7. Enter the project name and click the `Create` button.
+  <figure>
+    ![1.3 New Project Configuration](/social-media-sign-in/google/images/new-project-configuration.png)
+    <figcaption>1.3 New Project Configuration</figcaption>
+  </figure>
+   Here are the configuration details:
+   - The first underline shows your remaining project quota. Once it reaches the limit, you will need to upgrade your account. If this is your first time, you will receive a free quota of 12 projects.
+   - The second underline is for the `Project name`. Enter a name that aligns with your project’s purpose. **This name cannot be changed later, so choose carefully.**
+   - For the organization field, you can leave it blank. Since we’re not using an organization, this project will be for public use.
+   - Finally, click the `Create` button to create the project. The creation process will take a few seconds to complete.
+8. After completing the configuration, you will be redirected to the project dashboard. The project name and ID will be displayed on the notification panel. Click `Select Project` to begin working on your project.
+  <figure>
+    ![1.4 Project Created](/social-media-sign-in/google/images/project-created.png)
+    <figcaption>1.4 Project created</figcaption>
+  </figure>
+9. To confirm that you are using the correct project, check the underlined section in Figure 1.5, which displays the currently active project. Then, navigate to the `Credentials` menu and click the `Configure Consent Screen`.
+  <figure>
+    ![1.5 Begin setting up the OAuth consent screen.](/social-media-sign-in/google/images/start-consent-screen.png)
+    <figcaption>1.5 Begin setting up the OAuth consent screen.</figcaption>
+  </figure>
+10. The OAuth consent screen on Google is part of the OAuth 2.0 authentication and authorization process, which allows third-party applications to access user data on behalf of the user. When an application requests access to a user's data, Google displays an OAuth consent screen, asking the user to grant or deny the permissions requested by the application.
+    :::info Consent Screen
+    Both `Sign In With Google` and `One Tap authentication` include a consent screen which tells users the application requesting access to their data, what kind of data they are asked for and the terms that apply.
+    :::
+    Inside the OAuth consent screen configuration, choose your target user type as `External`, because we want all users with a Google account to be able to use this app, and not be limited to an organization or team, for public accessibility. Then, click `Create`.
+    <figure>
+      ![1.6 OAuth Consent Screen User Type](/social-media-sign-in/google/images/consent-screen-config.png)
+      <figcaption>1.6 OAuth Consent Screen User Type</figcaption>
+    </figure>
+    Then, on the OAuth consent screen configuration, enter the required fields:<br />
+      - **Application Name <span className="required">(required)</span>**: The name of the application requesting consent. It should accurately reflect your application and be consistent with the name users see elsewhere.<br />
+      - **Application Logo**: This image is displayed on the consent screen to help users recognize your app. The logo appears on the Sign In With Google consent screen and in account settings, but is not shown on the One Tap dialog.<br />
+      - **Support Email <span className="required">(required)</span>**: Displayed on the consent screen for user support and visible to G Suite administrators evaluating access to your application for their users. This email address appears on the Sign In With Google consent screen when the user clicks the application name.<br />
+    <figure>
+      ![1.7 OAuth Consent Screen App Information](/social-media-sign-in/google/images/consent-screen-oauth.png)
+      <figcaption>1.7 OAuth Consent Screen App Information</figcaption>
+    </figure>
+      - **Developer Contact Information <span className="required">(required)</span>**: This field is required for Google to notify the developer if there is a change in the application. <br />
+    After filling in the required fields, click `Save and Continue`.
+    <figure>
+      ![1.8 OAuth Consent Screen App Information](/social-media-sign-in/google/images/consent-screen-oauth-2.png)
+      <figcaption>1.8 OAuth Consent Screen App Information</figcaption>
+    </figure>
+      - **Scopes for Google APIs**: Scopes allow your application to access your users' private data. For authentication, the default scopes (email, profile, openid) are sufficient; you don't need to add any sensitive scopes. It is generally best practice to request scopes incrementally, at the time access is required, rather than upfront. Learn more.
+    <figure>
+      ![1.9 Consent Screen Scopes](/social-media-sign-in/google/images/consent-screen-add-scopes.png)
+      <figcaption>1.9 Consent Screen Scopes</figcaption>
+    </figure>
+      - Google provides many scopes. For OAuth usage, we recommend enabling three scopes: `email`, `profile`, and `openid`. These scopes are used to access the user's email, profile, and unique identifier. You can add more scopes based on your application's requirements.
+    <figure>
+      ![1.10 Consent Screen Scopes Configuration](/social-media-sign-in/google/images/consent-screen-scopes-configuration.png)
+      <figcaption>1.10 Consent Screen Scopes Configuration</figcaption>
+    </figure>
+    Then click `Save and Continue` After that, you will be asked to add Test Users; we can skip this step and click `Save and Continue` again. Finally, click `Back to Dashboard`.<br/>
+    Finally, we have created our OAuth Consent Screen. Now, we can create the OAuth 2.0 Client ID.
+11. To create our `client_id` Go to `Credentials` and click `Create Credential` > `OAuth client ID`.
+    <figure>
+      ![1.11 Create OAuth Client ID](/social-media-sign-in/google/images/create-credential.png)
+      <figcaption>1.11 Create OAuth Client ID</figcaption>
+    </figure>
+    Inside the OAuth client ID configuration:
+    - Set the **application type** to `Web application` because we are using Google Sign-In on the web.
+    - Enter the name of your application.
+    - For **Authorized JavaScript Origins**, specify where the Google scripts can be executed. We should add the client-side URL. For local tests or development, you must add two values here. First, add `http://localhost` and then `http://localhost:port`. Since we are using React Vite for our client-side app, the URL should be `http://localhost:5173`.
+    - For **Authorized Redirect URIs**, leave the field blank because we are using the default Google button, not a custom button, so we don't need to set up a redirect URL.
+    Then click `Create`.
+    <figure>
+    ![1.12 Create Credential OAuth client ID](/social-media-sign-in/google/images/credential-configuration.png)
+      <figcaption>1.12 Create Credential OAuth client ID</figcaption>
+    </figure>
+    After that, you can see your `client_id` and `client_secret`. Copy them and save them to your `.env` file.
+    <figure>
+      ![1.13 Credential created](/social-media-sign-in/google/images/credential-created.png)
+      <figcaption>1.13 Credential created</figcaption>
+    </figure>
+
+### [Set Up client-side using React](https://developers.google.com/identity/gsi/web/guides/display-button#button_rendering)
+:::info Result
+After this step, you will have a Google Sign-In button on your React application that allows users to sign in using their Google account.
+And the google token will be sent to the server for further verification.
+:::
+1. Create a New React Project using Vite
+    ```bash
+    npm create vite@latest
+    ```
+2. Then install required package and install `axios` for handling client request.
+    ```bash
+    cd client
+    npm install
+    npm install axios # the package for handle client request
+    ```
+3. Then create `.env` file and add to the project root, and your project file now should be like this.
+    <figure>
+      ![2.1 Project structure](/social-media-sign-in/google/images/project-structure.png)
+      <figcaption>2.1 Project structure</figcaption>
+    </figure>
+4. Inside the `.env` file, enter the Google `client_id` and `client_secret`.
+    ```env
+    GOOGLE_CLIENT_ID=1014925070088-gjj0mtq0bo68kdfktq2fk7m5rcombv3n.apps.googleusercontent.com
+    GOOGLE_CLIENT_SECRET=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
+    ```
+5. To render the button on the client side, [navigate to the docs](https://developers.google.com/identity/gsi/web/guides/display-button#button_rendering), where you will find code similar to this in the JavaScript section.
+    ```html
+    <html lang="en">
+      <body>
+        <script src="https://accounts.google.com/gsi/client" async=""></script>
+        <script>
+          function handleCredentialResponse(response) {
+            console.log("Encoded JWT ID token: " + response.credential);
+          }
+          window.onload = function () {
+            google.accounts.id.initialize({
+              // Replace YOUR_GOOGLE_CLIENT_ID with your own client_id obtained from step 1
+              client_id: "YOUR_GOOGLE_CLIENT_ID",
+              // Callback function to handle the response
+              callback: handleCredentialResponse,
+            });
+            google.accounts.id.renderButton(
+              // Get the element where the button will be rendered; this must exist in the DOM
+              document.getElementById("buttonDiv"),
+              // Customize the Google button attributes
+              { theme: "outline", size: "large" }
+            );
+            // Display the One Tap dialog; comment out to remove the dialog
+            google.accounts.id.prompt();
+          };
+        </script>
+        <div id="buttonDiv"></div>
+      </body>
+    </html>
+    ```
+6. Let's break this down step by step. First is the Google script tag `<script src="https://accounts.google.com/gsi/client" async defer></script>`. This script loads the Google Sign-In functionality, including the `google.accounts.id` object. We need to place this script inside the `<head>` tag of our `index.html` file. This placement ensures the script is loaded as soon as the application is rendered.
+7. Next, inside the `App.jsx` file, remove the boilerplate code and initialize the Google account ID within the `useEffect` hook. Placing the initialization inside `useEffect` ensures that the code runs only once, after the component has mounted and the Google script has loaded. We are use `axios` to handle the client request.
+    ```jsx
+    useEffect(() => {
+      // Initialize the Google Sign-In button
+      google.accounts.id.initialize({
+        // to load the env in Vite project
+        // please navigate to this doc -> https://vitejs.dev/guide/env-and-mode
+        client_id: import.meta.env.GOOGLE_CLIENT_ID,
+        // After the process is complete, the callback function will be called
+        callback: async (response) => {
+          console.log("Encoded JWT ID token: " + response.credential)
+
+          // Here is the logic to send the credential to the server
+          // You can use axios or fetch to send the credential to the server
+          const { data } = await axios.post('http://localhost:3000/auth/google', {
+            googleToken: response.credential,
+          });
+          localStorage.setItem('access_token', data.access_token);
+
+          // navigate to the home page or do magic stuff
+        },
+      });
+
+      // Render the Google Sign-In button
+      google.accounts.id.renderButton(
+        // The ID of the HTML element where the button will be rendered
+        document.getElementById("buttonDiv"),
+        // Customize the button attributes
+        { theme: "outline", size: "large" }
+      );
+      // Display the One Tap dialog; comment out to remove the dialog
+      google.accounts.id.prompt();
+    }, []);
+    ```
+    :::tip
+    If above code shown an error in variable `google`, you can add a window before the `google` variable. So the code will be like this `window.google.accounts.id.initialize({ ... })`
+    :::
+8. Then, the component should render the button. Add the `<div id="buttonDiv"></div>` to the component's JSX.
+9. The full code inside `index.html` should be look like this
+    ```html
+    <!doctype html>
+    <html lang="en">
+      <head>
+        <meta charset="UTF-8" />
+        <link href="/vite.svg" rel="icon" type="image/svg+xml" />
+        <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+        <title>Vite + React</title>
+        <!-- we add this line of code to load the gsi script -->
+        <script async="" src="https://accounts.google.com/gsi/client"></script>
+      </head>
+      <body>
+        <div id="root"></div>
+        <script src="/src/main.jsx" type="module"></script>
+      </body>
+    </html>
+    ```
+10. The full code inside `App.jsx` should be look like this
+    ```jsx
+    import { useEffect } from 'react';
+    import axios from 'axios';
+
+    function App() {
+      useEffect(() => {
+        google.accounts.id.initialize({
+          // fill this with your own client ID
+          client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+          // callback function to handle the response
+          callback: async (response) => {
+            console.log("Encoded JWT ID token: " + response.credential)
+            const { data } = await axios.post('http://localhost:3000/auth/google', {
+              googleToken: response.credential,
+            });
+
+            localStorage.setItem('access_token', data.access_token);
+
+            // navigate to the home page or do magic stuff
+          },
+        });
+        google.accounts.id.renderButton(
+          // HTML element ID where the button will be rendered
+          // this should be existed in the DOM
+          document.getElementById('buttonDiv'),
+          // customization attributes
+          { theme: 'outline', size: 'large' },
+        );
+        // to display the One Tap dialog, or comment to remove the dialog
+        google.accounts.id.prompt();
+      }, []);
+
+      return <div id="buttonDiv"></div>;
+    }
+
+    export default App;
+    ```
+11. Run the client app. by using
+    ```bash
+    npm run dev
+    ```
+12. You will see the running port in the terminal, it should be like this
+    <figure>
+      ![2.2 Running Application](/social-media-sign-in/google/images/running-application.png)
+      <figcaption>2.2 Running Application</figcaption>
+    </figure>
+13. Navigate to the url shown in the terminal, and you will see the Google Sign-In button.
+    <figure>
+      ![2.3 Button Google on Application](/social-media-sign-in/google/images/application-button-google.png)
+      <figcaption>2.3 Button Google on Application</figcaption>
+    </figure>
+14. So, when you click the button, you will see a popup from Google to sign in. Choose any of your account to sign in.
+    <figure>
+      ![2.4 Popup Google Login on Application](/social-media-sign-in/google/images/application-popup-google.png)
+      <figcaption>2.3 Popup Google Login on Application</figcaption>
+    </figure>
+15. On the first login, you will see the consent screen from Google. Click `Confirm` to continue.
+    <figure>
+      ![2.5 Consent Screen on Application](/social-media-sign-in/google/images/application-consent-approvement.png)
+      <figcaption>2.3 Consent Screen on Application</figcaption>
+    </figure>
+16. After that, you will see the console log with the encoded JWT ID token. it should look like this
+    ```text
+    eyJhbGciOiJSUzI1NiIsImtpZCI6ImUyNmQ5MTdiMWZlOGRlMTMzODJhYTdjYzlhMWQ2ZTkzMjYyZjMzZTIiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhenAiOiIxMDE0OTI1MDcwMDg4LWdqajBtdHEwYm82OGtkZmt0cTJmazdtNXJjb21idjNuLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwiYXVkIjoiMTAxNDkyNTA3MDA4OC1namowbXRxMGJvNjhrZGZrdHEyZms3bTVyY29tYnYzbi5hcHBzLmdvb2dsZXVzZXJjb250ZW50LmNvbSIsInN1YiI6IjEwNjQzOTE0NTQyMzMyODEwMzI0NSIsImVtYWlsIjoiYXNzaXN0YW5jZS5hcGlob3VzZUBnbWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwibmJmIjoxNzIyNTAyMDAxLCJuYW1lIjoiQW5nZ2EgTWF1bGFuYSIsInBpY3R1cmUiOiJodHRwczovL2xoMy5nb29nbGV1c2VyY29udGVudC5jb20vYS9BQ2c4b2NMdEpQcVVUUXUtTE1PemNBeW12RGxLOXN3eDFHTnhNd1M1RDhBZmRTSFRseGRQelBFPXM5Ni1jIiwiZ2l2ZW5fbmFtZSI6IkFuZ2dhIiwiZmFtaWx5X25hbWUiOiJNYXVsYW5hIiwiaWF0IjoxNzIyNTAyMzAxLCJleHAiOjE3MjI1MDU5MDEsImp0aSI6IjRmOWViNzRkZjRiMzc1Yjg4Njc3NDM5OGUwOTU5ZWRhZmQ1MjM0YmEifQ.YpOKlyGz2DSykM468daFE0fAZ0V8SLA4nyBiAbYuDh8GRhweGzuJZN6H4y7hS6dJeC6Ucx7Ha2VNMhVen8EEAgKvMmvc__daSVbbnxVFEPCsUHdwLqN4hACv9RSe2FKcC5t5wdpe2GVYjlFV-imNRbQ58IGO1mhrsZGTKDhSxukVgic8vw2PAe9r9lklgVVL8cdocbzhrh8DaPTSqHT7churxXeeTLtoOPz6Bq7qWrLHtaaSMhd4c_XpP7o5H86i0cTo2eAQ5IPAkMEmTG0agpmFRWdrFJEyYueXNQoSbXIunxvrIhYfo8PqKL8ffxsJGCKgRdskf87VncQ7zW8L7A
+    ```
+### [Verify the Google Token on the Server Side](https://developers.google.com/identity/gsi/web/guides/verify-google-id-token#node.js)
+1. Create a New Express Project
+    ```bash
+    npm init -y
+    npm install express cors sequelize pg pg-hstore jsonwebtoken google-auth-library
+    npm install -D sequelize-cli nodemon dotenv
+    ```
+2. Create a `.env` file in the root directory and add the following environment variables:
+    ```env
+    PORT=3000
+    GOOGLE_CLIENT_ID=1014925070088-gjj0mtq0bo68kdfktq2fk7m5rcombv3n.apps.googleusercontent.com
+    GOOGLE_CLIENT_SECRET=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
+    ```
+3. Initialize Sequelize
+    ```bash
+    npx sequelize-cli init
+    ```
+   This will create a `config`, `migrations`, `models`, and `seeders` directory.
+   Then update the `config/config.json` to use PostgreSQL.
+    ```json
+    {
+      "development": {
+        "username": "your_db_username",
+        "password": "your_db_password",
+        "database": "02-google-sign-in",
+        "host": "localhost",
+        "dialect": "postgres"
+      }
+    }
+    ```
+   Replace `your_db_username` and `your_db_password` with your own database username and password
+4. Create a model to store our user
+    ```bash
+    npx sequelize-cli model:generate --name User --attributes name:string,email:string,password:string,picture:string,provider:string
+    ```
+    This will create a `models/user.js` file.
+5. Instantiate the `OAuth2Client` from `google-auth-library` and create an Express server to handle the Google Sign-In request.
+    ```js
+    const { OAuth2Client } = require('google-auth-library');
+    const client = new OAuth2Client();
+    ```
+6. Then we verify the token from client in the server
+    ```js
+    const { googleToken } = req.body;
+    const ticket = await client.verifyIdToken({
+      idToken: googleToken,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+    ```
+7. Then we get data from the ticket
+    ```js
+    const payload = ticket.getPayload();
+    const [user, created] = await User.findOrCreate({
+      where: { email },
+      defaults: {
+        name: payload.name,
+        email: payload.email,
+        picture: payload.picture,
+        provider: 'google',
+        password: 'google_id'
+      },
+      hooks: false
+    });
+    ```
+8. After that we create a token then response to the client
+    ```js
+    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET);
+    res.status(created ? 201 : 200).json({ access_token: token });
+    ```
+9. Full code inside `app.js` and add the following code:
+    ```js
+    const express = require('express');
+    const cors = require('cors');
+    const jwt = require('jsonwebtoken');
+    const axios = require('axios');
+    require('dotenv').config();
+
+    const {OAuth2Client} = require('google-auth-library');
+    const client = new OAuth2Client();
+
+    const { User } = require('./models');
+
+    const app = express();
+    app.use(cors());
+    app.use(express.json());
+
+    app.post('/auth/google', async (req, res) => {
+      const { googleToken } = req.body;
+      try {
+        const ticket = await client.verifyIdToken({
+          idToken: googleToken,
+          audience: process.env.GOOGLE_CLIENT_ID,
+        });
+        const payload = ticket.getPayload();
+        const [user, created] = await User.findOrCreate({
+          where: { email },
+          defaults: {
+            name: payload.name,
+            email: payload.email,
+            picture: payload.picture,
+            provider: 'google',
+            password: 'google_id'
+          },
+          hooks: false
+        });
+
+        const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET);
+        res.status(created ? 201 : 200).json({ access_token: token });
+      } catch (error) {
+        res.status(500).json({ message: 'Internal server error' });
+      }
+    });
+
+    app.listen(process.env.PORT, () => {
+      console.log(`Server is running on http://localhost:${process.env.PORT}`);
+    });
+   ```
+10. Try to run the server by using
+    ```bash
+    node app.js
+    ```
+
+## Result
+This setup allows users to authenticate using their Google account. Upon successful login, the user's information is stored in a PostgreSQL database managed by Sequelize.
+
+## Common Mistakes
+- **Invalid Client ID**: Double-check that your Client ID is correctly configured in both the backend and frontend.
+- **CORS Issues**: Ensure that the backend API allows requests from the frontend's origin.
+- **Database Connection Errors**: Verify your database connection settings and ensure the database server is running.
+- **Popup Google Login is blank after deployment**: Make sure to add your new deployed URL to the Authorized JavaScript Origins in the Google Developer Console.

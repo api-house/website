@@ -5,36 +5,81 @@
  */
 
 /* You can override the default Infima variables here. */
+/*:root {*/
+/*  --ifm-color-primary: #25c2a0;*/
+/*  --ifm-color-primary-dark: #21af90;*/
+/*  --ifm-color-primary-darker: #1fa588;*/
+/*  --ifm-color-primary-darkest: #1a8870;*/
+/*  --ifm-color-primary-light: #29d5b0;*/
+/*  --ifm-color-primary-lighter: #32d8b4;*/
+/*  --ifm-color-primary-lightest: #4fddbf;*/
+/*  --ifm-code-font-size: 95%;*/
+/*  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);*/
+/*}*/
+
+/*!* For readability concerns, you should choose a lighter palette in dark mode. *!*/
+/*[data-theme='dark'] {*/
+/*  --ifm-color-primary: #25c2a0;*/
+/*  --ifm-color-primary-dark: #21af90;*/
+/*  --ifm-color-primary-darker: #1fa588;*/
+/*  --ifm-color-primary-darkest: #1a8870;*/
+/*  --ifm-color-primary-light: #29d5b0;*/
+/*  --ifm-color-primary-lighter: #32d8b4;*/
+/*  --ifm-color-primary-lightest: #4fddbf;*/
+/*  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);*/
+/*}*/
+
+/*img {*/
+/*  border-radius: 10px;*/
+/*  border: 3px solid transparent;*/
+/*  transition: border-color 0.5s; !* Specify the property and duration *!*/
+/*}*/
+
+/*img:hover {*/
+/*  border-color: var(--ifm-color-primary);*/
+/*}*/
+
 :root {
-  --ifm-color-primary: #2e8555;
-  --ifm-color-primary-dark: #29784c;
-  --ifm-color-primary-darker: #277148;
-  --ifm-color-primary-darkest: #205d3b;
-  --ifm-color-primary-light: #33925d;
-  --ifm-color-primary-lighter: #359962;
-  --ifm-color-primary-lightest: #3cad6e;
+  --ifm-color-primary: #4a90e2; /* Sky Blue */
+  --ifm-color-primary-dark: #417ec7; /* Slightly darker Sky Blue */
+  --ifm-color-primary-darker: #3b73b5; /* Even darker Sky Blue */
+  --ifm-color-primary-darkest: #336299; /* Darkest Sky Blue */
+  --ifm-color-primary-light: #5a9ff1; /* Lighter Sky Blue */
+  --ifm-color-primary-lighter: #6ab0f8; /* Even lighter Sky Blue */
+  --ifm-color-primary-lightest: #79bfff; /* Lightest Sky Blue */
+  --ifm-color-secondary: #999; /* Gray */
+  --ifm-color-required: #e74c3c;
   --ifm-code-font-size: 95%;
-  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
+  --docusaurus-highlighted-code-line-bg: rgba(74, 144, 226, 0.1); /* Highlight with a tint of sky blue */
 }
 
-/* For readability concerns, you should choose a lighter palette in dark mode. */
 [data-theme='dark'] {
-  --ifm-color-primary: #25c2a0;
-  --ifm-color-primary-dark: #21af90;
-  --ifm-color-primary-darker: #1fa588;
-  --ifm-color-primary-darkest: #1a8870;
-  --ifm-color-primary-light: #29d5b0;
-  --ifm-color-primary-lighter: #32d8b4;
-  --ifm-color-primary-lightest: #4fddbf;
-  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+  --ifm-color-primary: #4a90e2; /* Sky Blue */
+  --ifm-color-primary-dark: #417ec7; /* Slightly darker Sky Blue */
+  --ifm-color-primary-darker: #3b73b5; /* Even darker Sky Blue */
+  --ifm-color-primary-darkest: #336299; /* Darkest Sky Blue */
+  --ifm-color-primary-light: #5a9ff1; /* Lighter Sky Blue */
+  --ifm-color-primary-lighter: #6ab0f8; /* Even lighter Sky Blue */
+  --ifm-color-primary-lightest: #79bfff; /* Lightest Sky Blue */
+  --ifm-color-secondary: #999; /* Gray */
+  --docusaurus-highlighted-code-line-bg: rgba(74, 144, 226, 0.3); /* Highlight with a tint of sky blue */
 }
 
 img {
   border-radius: 10px;
   border: 3px solid transparent;
-  transition: border-color 0.5s; /* Specify the property and duration */
+  transition: border-color 0.5s;
 }
 
 img:hover {
   border-color: var(--ifm-color-primary);
+}
+
+figure figcaption {
+  text-align: center;
+  color: var(--ifm-color-secondary);
+}
+
+.required {
+  color: var(--ifm-color-required);
 }

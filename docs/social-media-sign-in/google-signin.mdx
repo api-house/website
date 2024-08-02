@@ -1,22 +1,28 @@
 # Google Sign In
 
 ## Objective
-
-To create a web application that allows users to log in using their Google account. The backend will be built using Express and Sequelize for managing user data, while the frontend will utilize React and NativeScript JS for the Google Sign-In (GSI) implementation.
+The objective is to create a web application that allows users to log in using their Google accounts, enhancing security and simplifying the login process. The backend will be built using Express and Sequelize to manage user data, while the frontend will use React for the web interface and NativeScript JS for mobile applications. The Google Sign-In (GSI) feature will be implemented by setting up a project in the Google API Console, including the necessary libraries, initializing the sign-in button, handling the sign-in response, and validating the token on the server. This approach ensures a consistent and secure authentication experience across different platforms, improving user retention and satisfaction.
 
 ## References
-
 - [Google Identity Services Documentation](https://developers.google.com/identity/gsi/web/guides/overview)
 - [Express.js Documentation](https://expressjs.com/)
 - [Sequelize Documentation](https://sequelize.org/)
 - [React Documentation](https://react.dev/)
 
 ## Theoretical Foundation
-Google Identity Services (GSI) provides an easy and secure way for users to authenticate using their Google accounts. The flow typically involves:
-- **Client Side**: Users click a Google Sign-In button, triggering a sign-in request to Google.
-- **Google Authentication**: Google verifies the user's credentials and returns an ID token.
-- **Server Side**: The server verifies the ID token, checks if the user exists, and if not, creates a new user record.
-- **Token Generation**: The server generates a JWT token for the user and sends it back to the client.
+The implementation of Google Sign-In in web and mobile applications is grounded in several theoretical and academic principles that justify its use as an effective authentication method.
+1. **Security and Trust**
+   Google Sign-In leverages OAuth 2.0 and OpenID Connect protocols, which are well-established frameworks for secure authorization and authentication. These protocols are widely accepted in the academic community for their robust security mechanisms, such as token-based authentication and encrypted data transmission, reducing the risk of unauthorized access and ensuring user data privacy.
+2. **User Experience and Convenience**
+   Theories in Human-Computer Interaction (HCI) emphasize the importance of user experience and ease of use in software design. By integrating Google Sign-In, applications provide a familiar and straightforward authentication process, which aligns with the principles of usability and user-centered design. This reduces cognitive load and friction during the login process, thereby enhancing user satisfaction and engagement.
+3. **Single Sign-On (SSO) Efficiency**
+   Single Sign-On (SSO) is an authentication process that allows a user to access multiple applications with one set of login credentials. Academic research supports SSO as an efficient way to manage user identities, reducing the need for multiple passwords and simplifying access management. Google Sign-In, as an SSO solution, improves operational efficiency and security by centralizing authentication through a trusted provider.
+4. **Scalability and Reliability**
+   From a systems design perspective, using a third-party authentication provider like Google reduces the burden on developers to build and maintain secure authentication systems. This outsourcing to a scalable and reliable service aligns with principles of distributed systems and cloud computing, where leveraging established, high-availability services enhances the robustness and scalability of applications.
+5. **Privacy and Data Protection**
+   Google Sign-In adheres to stringent data protection regulations and standards, such as GDPR (General Data Protection Regulation) and CCPA (California Consumer Privacy Act). By using Google’s authentication services, applications can ensure compliance with these regulations, which is critical for protecting user privacy and maintaining trust.
+6. **Behavioral Economics and Trust Signals**
+   In the realm of behavioral economics, trust signals play a crucial role in user decision-making. The Google brand is widely recognized and trusted, and integrating Google Sign-In serves as a trust signal to users, indicating that the application values security and reliability. This can lead to higher user adoption rates and increased trust in the application.
 
 ## Requirements
 ### Software & Tools
@@ -32,6 +38,12 @@ Google Identity Services (GSI) provides an easy and secure way for users to auth
 - **React**: Experience with frontend development.
 - **Database Management**: Basic understanding of SQL and using Sequelize.
 
+## Integration Flow
+<figure>
+  ![1.0 Flow Application](/social-media-sign-in/google/images/application-flow.png)
+  <figcaption>1.0 Flow of implementing Google Auth</figcaption>
+</figure>
+
 ## Procedural Steps
 
 ### [Set Up Google OAuth in Google Developer Console](https://developers.google.com/identity/gsi/web/guides/get-google-api-clientid)
@@ -43,26 +55,26 @@ After this step, you will obtain the OAuth 2.0 `client_id` and `client_secret` f
 2. Open the **Credentials** page on the [Google Developer Console](https://console.cloud.google.com/apis/dashboard).
 3. If this is your first time using the Google Developer Console, create a new project.
 4. On the `Enable APIs and Services` page, search for `Create Project`. It should appear in the top right corner.
-  <figure>
-    ![1.1 Create a new project in the Dashboard](/social-media-sign-in/google/images/create-project.png)
-    <figcaption>1.1 Create a new project in the Dashboard</figcaption>
-  </figure>
+    <figure>
+      ![1.1 Create a new project in the Dashboard](/social-media-sign-in/google/images/create-project.png)
+      <figcaption>1.1 Create a new project in the Dashboard</figcaption>
+    </figure>
 5. After you click `Create Project`, a popup will appear displaying a list of your projects.
 6. Then, click the `New Project` button to create a new project.
-  <figure>
-    ![1.2 Creating a Project](/social-media-sign-in/google/images/new-project.png)
-    <figcaption>1.2 Creating a Project</figcaption>
-  </figure>
+    <figure>
+      ![1.2 Creating a Project](/social-media-sign-in/google/images/new-project.png)
+      <figcaption>1.2 Creating a Project</figcaption>
+    </figure>
 7. Enter the project name and click the `Create` button.
-  <figure>
-    ![1.3 New Project Configuration](/social-media-sign-in/google/images/new-project-configuration.png)
-    <figcaption>1.3 New Project Configuration</figcaption>
-  </figure>
-   Here are the configuration details:
-   - The first underline shows your remaining project quota. Once it reaches the limit, you will need to upgrade your account. If this is your first time, you will receive a free quota of 12 projects.
-   - The second underline is for the `Project name`. Enter a name that aligns with your project’s purpose. **This name cannot be changed later, so choose carefully.**
-   - For the organization field, you can leave it blank. Since we’re not using an organization, this project will be for public use.
-   - Finally, click the `Create` button to create the project. The creation process will take a few seconds to complete.
+    <figure>
+      ![1.3 New Project Configuration](/social-media-sign-in/google/images/new-project-configuration.png)
+      <figcaption>1.3 New Project Configuration</figcaption>
+    </figure>
+      Here are the configuration details:
+     - The first underline shows your remaining project quota. Once it reaches the limit, you will need to upgrade your account. If this is your first time, you will receive a free quota of 12 projects.
+     - The second underline is for the `Project name`. Enter a name that aligns with your project’s purpose. **This name cannot be changed later, so choose carefully.**
+     - For the organization field, you can leave it blank. Since we’re not using an organization, this project will be for public use.
+     - Finally, click the `Create` button to create the project. The creation process will take a few seconds to complete.
 8. After completing the configuration, you will be redirected to the project dashboard. The project name and ID will be displayed on the notification panel. Click `Select Project` to begin working on your project.
   <figure>
     ![1.4 Project Created](/social-media-sign-in/google/images/project-created.png)
@@ -132,12 +144,16 @@ After this step, you will obtain the OAuth 2.0 `client_id` and `client_secret` f
 ### [Set Up client-side using React](https://developers.google.com/identity/gsi/web/guides/display-button#button_rendering)
 :::info Result
 After this step, you will have a Google Sign-In button on your React application that allows users to sign in using their Google account.
-And the google token will be sent to the server for further verification.
+And the Google token will be sent to the server for further verification.
 :::
 1. Create a New React Project using Vite
     ```bash
     npm create vite@latest
     ```
+    <figure>
+      ![2.0 Client Application Setup](/social-media-sign-in/google/images/client-application-setup.png)
+      <figcaption>2.0 Client Application Setup</figcaption>
+    </figure>
 2. Then install required package and install `axios` for handling client request.
     ```bash
     cd client
@@ -279,7 +295,7 @@ And the google token will be sent to the server for further verification.
 
     export default App;
     ```
-11. Run the client app. by using
+11. Run the client app by using
     ```bash
     npm run dev
     ```
@@ -308,7 +324,12 @@ And the google token will be sent to the server for further verification.
     eyJhbGciOiJSUzI1NiIsImtpZCI6ImUyNmQ5MTdiMWZlOGRlMTMzODJhYTdjYzlhMWQ2ZTkzMjYyZjMzZTIiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhenAiOiIxMDE0OTI1MDcwMDg4LWdqajBtdHEwYm82OGtkZmt0cTJmazdtNXJjb21idjNuLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwiYXVkIjoiMTAxNDkyNTA3MDA4OC1namowbXRxMGJvNjhrZGZrdHEyZms3bTVyY29tYnYzbi5hcHBzLmdvb2dsZXVzZXJjb250ZW50LmNvbSIsInN1YiI6IjEwNjQzOTE0NTQyMzMyODEwMzI0NSIsImVtYWlsIjoiYXNzaXN0YW5jZS5hcGlob3VzZUBnbWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwibmJmIjoxNzIyNTAyMDAxLCJuYW1lIjoiQW5nZ2EgTWF1bGFuYSIsInBpY3R1cmUiOiJodHRwczovL2xoMy5nb29nbGV1c2VyY29udGVudC5jb20vYS9BQ2c4b2NMdEpQcVVUUXUtTE1PemNBeW12RGxLOXN3eDFHTnhNd1M1RDhBZmRTSFRseGRQelBFPXM5Ni1jIiwiZ2l2ZW5fbmFtZSI6IkFuZ2dhIiwiZmFtaWx5X25hbWUiOiJNYXVsYW5hIiwiaWF0IjoxNzIyNTAyMzAxLCJleHAiOjE3MjI1MDU5MDEsImp0aSI6IjRmOWViNzRkZjRiMzc1Yjg4Njc3NDM5OGUwOTU5ZWRhZmQ1MjM0YmEifQ.YpOKlyGz2DSykM468daFE0fAZ0V8SLA4nyBiAbYuDh8GRhweGzuJZN6H4y7hS6dJeC6Ucx7Ha2VNMhVen8EEAgKvMmvc__daSVbbnxVFEPCsUHdwLqN4hACv9RSe2FKcC5t5wdpe2GVYjlFV-imNRbQ58IGO1mhrsZGTKDhSxukVgic8vw2PAe9r9lklgVVL8cdocbzhrh8DaPTSqHT7churxXeeTLtoOPz6Bq7qWrLHtaaSMhd4c_XpP7o5H86i0cTo2eAQ5IPAkMEmTG0agpmFRWdrFJEyYueXNQoSbXIunxvrIhYfo8PqKL8ffxsJGCKgRdskf87VncQ7zW8L7A
     ```
 ### [Verify the Google Token on the Server Side](https://developers.google.com/identity/gsi/web/guides/verify-google-id-token#node.js)
-1. Create a New Express Project
+1. **Create a New Express Project**.
+   There are several packages to support our demo
+   - **nodemon**: Used to auto-restart our server on save.
+   - **cors**: For handling Cross-Origin Resource Sharing to receive our client-side requests.
+   - **sequelize**: Our beloved ORM for handling communication to the database seamlessly.
+   - **google-auth-library**: For handling the verification of `id_token` from Google once it's received.
     ```bash
     npm init -y
     npm install express cors sequelize pg pg-hstore jsonwebtoken google-auth-library
@@ -317,9 +338,11 @@ And the google token will be sent to the server for further verification.
 2. Create a `.env` file in the root directory and add the following environment variables:
     ```env
     PORT=3000
+    JWT_SECRET=secret
     GOOGLE_CLIENT_ID=1014925070088-gjj0mtq0bo68kdfktq2fk7m5rcombv3n.apps.googleusercontent.com
     GOOGLE_CLIENT_SECRET=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
     ```
+    This configuration requires package `dotenv` as devDependencies which is we installed in step 1 above.
 3. Initialize Sequelize
     ```bash
     npx sequelize-cli init
@@ -343,20 +366,23 @@ And the google token will be sent to the server for further verification.
     npx sequelize-cli model:generate --name User --attributes name:string,email:string,password:string,picture:string,provider:string
     ```
     This will create a `models/user.js` file.
-5. Instantiate the `OAuth2Client` from `google-auth-library` and create an Express server to handle the Google Sign-In request.
+5. Instantiate the `OAuth2Client` from `google-auth-library`.
     ```js
     const { OAuth2Client } = require('google-auth-library');
     const client = new OAuth2Client();
     ```
-6. Then we verify the token from client in the server
+6. Then we verify the token from the client-side in the server
     ```js
+    // we receive googleToken from the client
     const { googleToken } = req.body;
     const ticket = await client.verifyIdToken({
       idToken: googleToken,
+      // we use our client_id from the Google console
       audience: process.env.GOOGLE_CLIENT_ID,
     });
     ```
-7. Then we get data from the ticket
+7. Then we get data from the ticket and process our data to store it in our database. Logging in using social media doesn't require us to register first, but we can also log in the user as the authentication already uses OAuth 2.0.
+   You can check the [payload data here](https://developers.google.com/identity/sign-in/web/backend-auth#calling-the-tokeninfo-endpoint)
     ```js
     const payload = ticket.getPayload();
     const [user, created] = await User.findOrCreate({
@@ -366,14 +392,23 @@ And the google token will be sent to the server for further verification.
         email: payload.email,
         picture: payload.picture,
         provider: 'google',
+        // We can type any password as a placeholder.
+        // In future development, you should implement a feature to update the user's password.
         password: 'google_id'
       },
+      // Required to set hooks: false
       hooks: false
     });
     ```
-8. After that we create a token then response to the client
+    :::warning
+
+    Remember to add the option `hooks: false` to the model finder, because we are using bcryptjs to hash passwords, and it always fails when the user logs in using regular login.
+    :::
+8. After that, we create a token using `jsonwebtoken` for `access_token` to access our resource. It has a different purpose from the Google token. The Google token is the user token provided by Google that contains user information. We use that token to extract user information to insert into our database. The `access_token` we create is for accessing our website.
     ```js
     const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET);
+    // We conditionally respond with the status because the client needs to know
+    // whether it is a new user or an existing user.
     res.status(created ? 201 : 200).json({ access_token: token });
     ```
 9. Full code inside `app.js` and add the following code:

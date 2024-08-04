@@ -1,0 +1,235 @@
+---
+sidebar_position: 2
+title: Fetch Data using Currying Method
+---
+import Figure from '../../../../src/components/Figure';
+
+# Fetching Data
+
+In this guide, we will learn how to fetch data from an API using Redux Toolkit. We will create a simple movie application that fetches data from an API and displays it in a React application. There are two ways to implement data fetching in Redux Toolkit: using the currying method and using the `createAsyncThunk` API. In this guide, we will use the currying method.
+
+## Requirements
+1. **Software:**
+   - Node.js (LTS version recommended)
+   - npm or yarn package manager
+   - npm package `react`, `react-dom`, `react-redux`, `@reduxjs/toolkit`
+2. **Knowledge:**
+   - Basic JavaScript, React
+3. **Objective:**
+   - We will fetch data from [https://gc01.projects.khanz1.dev](https://gc01.projects.khanz1.dev) api
+
+## Integration Flow
+<Figure src="https://redux.js.org/assets/images/ReduxAsyncDataFlowDiagram-d97ff38a0f4da0f327163170ccc13e80.gif" caption="1.1 Redux Async data flow" />
+
+
+## 1. Create a React Project
+First, we have to create a new project. We use Vite to do this. To create a new project, run the following command
+  ```bash
+  npm create vite@latest
+  ```
+Then select the options as follows
+<figure>
+  ![1.2 Client Application Setup](/social-media-sign-in/google/images/client-application-setup.png)
+  <figcaption>1.2 Client Application Setup</figcaption>
+</figure>
+
+Then install Redux and React Redux
+  ```bash
+  npm install @reduxjs/toolkit react-redux
+  ```
+  - [`@reduxjs/toolkit`](https://redux-toolkit.js.org/) is the official, opinionated, batteries-included toolset for efficient Redux development. We need this to create a Redux store where the application's state will be stored and managed.
+  - [`react-redux`](https://react-redux.js.org/)  is the official React binding for Redux. We need this to connect our React components to the Redux store because React components cannot access the store directly.
+
+## 2. Create a Redux `movieSlice` reducer with `createSlice`
+  We create the movieSlice; all the default states should be defined here to prevent the state from being undefined during the first render
+
+  We are fetching data from [https://gc01.projects.khanz1.dev](https://gc01.projects.khanz1.dev) and we will use two endpoints here. It is `/pub/movies` and `/pub/movies/:id`. So we have to store the default value of each state in the slice reducer.
+  ```js
+  // src/features/counter/movieSlice.js
+
+  import { createSlice } from "@reduxjs/toolkit";
+  import axios from "axios";
+
+  const serverUrl = "https://gc01.projects.khanz1.dev";
+  export const movieSlice = createSlice({
+    name: "movie",
+    initialState: {
+      // `list` property to store the list of movies from `/pub/movies`
+      list: {
+        data: [],
+        totalPages: 0,
+        currentPage: 0,
+        totalData: 0,
+        dataPerPage: 0
+      },
+      // `detail` property to store the detail of a movie from `/pub/movies/:id`
+      detail: {}
+    },
+    reducers: {
+      setMovies: (state, action) => {
+        state.list.data = action.payload.data;
+      },
+      setMovie: (state, action) => {
+        state.detail = action.payload;
+      },
+    },
+  });
+
+  export const { setMovies, setMovie } = movieSlice.actions;
+
+  export default movieSlice.reducer;
+  ```
+  Then we will add a new reducer for fetching data called async Data Fetch. We should add it below the declaration of movie actions because we need that action to perform a state mutation.
+  We use [currying function](https://builtin.com/software-engineering-perspectives/currying-javascript) here to accomplish the async data fetching.
+
+  If a request throws an error, we can handle the exception using a try-catch block and wrap the dispatch function with a try-catch block.
+  ```js
+  export const fetchMovies = () => {
+    return async (dispatch) => {
+      const { data } = await axios.get(`${serverUrl}/pub/movies`);
+      dispatch(setMovies(data));
+    };
+  };
+
+  export const fetchMovieById = (movieId) => {
+    return async (dispatch) => {
+
+      const { data } = await axios.get(`${serverUrl}/pub/movies/${movieId}`);
+      dispatch(setMovie(data));
+    };
+  };
+  ```
+
+## 2. Create a Redux slice reducer with `createSlice`
+  We will create a store with `configureStore` and add the `movieSlice` reducer to the store
+  ```js
+  // src/store.js
+
+  import { configureStore } from "@reduxjs/toolkit";
+  import movieReducer from "./features/movies/movieSlice";
+
+  export const store = configureStore({
+    reducer: {
+      movies: movieReducer,
+    },
+  });
+  ```
+## 3. Provide the Redux store to React
+  Because we will use React Router, we should add it to `App.jsx`, but we will keep `main.jsx` the same.
+  :::note
+  To make redux store available to all components, we need to wrap the `RouterProvider` with the `Provider` component from `react-redux`.
+  :::
+  ```jsx
+  import "./styles.css";
+
+  import { Provider } from "react-redux";
+  import { store } from "./store";
+  import { RouterProvider } from "react-router-dom";
+  import { router } from "./router";
+
+  export default function App() {
+    return (
+      <Provider store={store}>
+        <RouterProvider router={router} />
+      </Provider>
+    );
+  }
+  ```
+## 4. Fetch the Data Inside React Components
+  We are still using `useEffect` to start to fetch the data, but now we are calling the async action creator `fetchMovies` from the slice reducer.
+  ```jsx
+  import { useEffect } from "react";
+  import { useSelector, useDispatch } from "react-redux";
+  import { Link } from "react-router-dom";
+  import { fetchMovies } from "../features/movies/movieSlice";
+
+  export default function HomePage() {
+    const movies = useSelector((state) => state.movies.data);
+    const dispatch = useDispatch();
+
+    useEffect(() => {
+      dispatch(fetchMovies());
+    }, []);
+
+    return (
+      <div className="App">
+        <div className="card-container">
+          {movies.map((movie) => (
+            <Link to={`/movies/${movie.id}`} key={movie.id} className="card">
+              <img className="card-image" src={movie.imgUrl} alt={movie.title} />
+              <h5 className="card-title">{movie.title}</h5>
+            </Link>
+          ))}
+        </div>
+      </div>
+    );
+  }
+  ```
+## 5. Handling Error Handler and Next Action After Dispatching
+  To handle the error, we can use the `try-catch` block inside the `useEffect` hook. If the request fails, we can set the error state to the error message.
+  We handle the error inside the component by checking if the error state is not null. If it is not null, we display the error message.
+  ```jsx
+  import { useEffect, useState } from "react";
+  import { useSelector, useDispatch } from "react-redux";
+  import { useParams } from "react-router-dom";
+  import { fetchMovieById } from "../features/movies/movieSlice";
+
+  export default function DetailMoviePage() {
+    const [error, setError] = useState(null);
+
+    const params = useParams();
+    const movie = useSelector((state) => state.movies.movie);
+    const dispatch = useDispatch();
+
+    useEffect(() => {
+      (async () => {
+        try {
+          // Remember to add the `await` keyword here
+          // because it's important to make the dispatch awaited.
+          await dispatch(fetchMovieById(params.id));
+          // Below, we can perform another action without worrying
+          // about whether the previous action was successful
+          // or not because we are using await.
+          // Therefore, this will succeed,
+          // and any errors will be caught by the catch block.
+        } catch (err) {
+          setError(err);
+        }
+      })();
+    }, [params]);
+
+    if (error || !movie) {
+      return <div>{error?.message || 'Loading...'}</div>;
+    }
+
+    return (
+      <div style={{ position: "relative" }}>
+        <div style={{ display: "flex", gap: 10 }}>
+          <img src={movie.imgUrl} alt={movie.title} width="50%" />
+          <div>
+            <h2>{movie.title}</h2>
+            <p>{movie.synopsis}</p>
+            <p>
+              {movie.genre?.name} - {movie.author?.username}
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  ```
+## 6. Make your move now
+  Here is the complete code for the movie app. You can copy and paste it into your project to see it in action or just check the sandbox below.
+<iframe
+  src="https://codesandbox.io/embed/m6nkts?view=preview&module=%2Fsrc%2FApp.jsx&hidenavigation=1"
+  style={{
+    width: "100%",
+    height: 500,
+    border: 0,
+    borderRadius: 4,
+    overflow: "hidden"
+  }}
+  title="movie-app"
+  allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
+  sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+/>

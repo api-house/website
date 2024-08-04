@@ -90,7 +90,7 @@ After this step, you will obtain the OAuth 2.0 `client_id` and `client_secret` f
     Both `Sign In With Google` and `One Tap authentication` include a consent screen which tells users the application requesting access to their data, what kind of data they are asked for and the terms that apply.
     :::
     Inside the OAuth consent screen configuration, choose your target user type as `External`, because we want all users with a Google account to be able to use this app, and not be limited to an organization or team, for public accessibility. Then, click `Create`.
-    <figure>
+    <figure className="img-50-center">
       ![1.6 OAuth Consent Screen User Type](/social-media-sign-in/google/images/consent-screen-config.png)
       <figcaption>1.6 OAuth Consent Screen User Type</figcaption>
     </figure>
@@ -131,12 +131,12 @@ After this step, you will obtain the OAuth 2.0 `client_id` and `client_secret` f
     - For **Authorized JavaScript Origins**, specify where the Google scripts can be executed. We should add the client-side URL. For local tests or development, you must add two values here. First, add `http://localhost` and then `http://localhost:port`. Since we are using React Vite for our client-side app, the URL should be `http://localhost:5173`.
     - For **Authorized Redirect URIs**, leave the field blank because we are using the default Google button, not a custom button, so we don't need to set up a redirect URL.
     Then click `Create`.
-    <figure>
-    ![1.12 Create Credential OAuth client ID](/social-media-sign-in/google/images/credential-configuration.png)
+    <figure className="img-50-center">
+      ![1.12 Create Credential OAuth client ID](/social-media-sign-in/google/images/credential-configuration.png)
       <figcaption>1.12 Create Credential OAuth client ID</figcaption>
     </figure>
     After that, you can see your `client_id` and `client_secret`. Copy them and save them to your `.env` file.
-    <figure>
+    <figure className="img-50-center">
       ![1.13 Credential created](/social-media-sign-in/google/images/credential-created.png)
       <figcaption>1.13 Credential created</figcaption>
     </figure>
@@ -161,7 +161,7 @@ And the Google token will be sent to the server for further verification.
     npm install axios # the package for handle client request
     ```
 3. Then create `.env` file and add to the project root, and your project file now should be like this.
-    <figure>
+    <figure className="img-50-center">
       ![2.1 Project structure](/social-media-sign-in/google/images/project-structure.png)
       <figcaption>2.1 Project structure</figcaption>
     </figure>
@@ -300,7 +300,7 @@ And the Google token will be sent to the server for further verification.
     npm run dev
     ```
 12. You will see the running port in the terminal, it should be like this
-    <figure>
+    <figure className="img-50-center">
       ![2.2 Running Application](/social-media-sign-in/google/images/running-application.png)
       <figcaption>2.2 Running Application</figcaption>
     </figure>
@@ -310,14 +310,14 @@ And the Google token will be sent to the server for further verification.
       <figcaption>2.3 Button Google on Application</figcaption>
     </figure>
 14. So, when you click the button, you will see a popup from Google to sign in. Choose any of your account to sign in.
-    <figure>
+    <figure className="img-50-center">
       ![2.4 Popup Google Login on Application](/social-media-sign-in/google/images/application-popup-google.png)
-      <figcaption>2.3 Popup Google Login on Application</figcaption>
+      <figcaption>2.4 Popup Google Login on Application</figcaption>
     </figure>
 15. On the first login, you will see the consent screen from Google. Click `Confirm` to continue.
-    <figure>
+    <figure className="img-50-center">
       ![2.5 Consent Screen on Application](/social-media-sign-in/google/images/application-consent-approvement.png)
-      <figcaption>2.3 Consent Screen on Application</figcaption>
+      <figcaption>2.5 Consent Screen on Application</figcaption>
     </figure>
 16. After that, you will see the console log with the encoded JWT ID token. it should look like this
     ```text

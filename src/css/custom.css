@@ -83,3 +83,8 @@ figure figcaption {
 .required {
   color: var(--ifm-color-required);
 }
+
+.img-50-center {
+  width: 50%;
+  margin: auto;
+}

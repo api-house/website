@@ -1,28 +1,31 @@
-
+---
+sidebar_position: 1
+title: Using Multer and Cloudinary
+---
 # Using Multer and Cloudinary
 
-## I. Objective
+## Objective
 The goal is to create a file upload system using Express.js, Multer for handling file uploads, and Cloudinary for storing files. We will focus on uploading files as base64 encoded strings to Cloudinary.
 
-## II. References
+## References
 - [Multer Documentation](https://www.npmjs.com/package/multer)
 - [Cloudinary Documentation](https://cloudinary.com/documentation)
 - [Node.js Documentation](https://nodejs.org/en)
 - [Upload via Base64 Data URI on Cloudinary](https://cloudinary.com/documentation/upload_parameters#upload_via_a_base_64_data_uri)
 
-## III. Theoretical Foundation
+## Theoretical Foundation
 File upload functionality is a common requirement in web applications, enabling users to upload various file types such as images, documents, and more. Using Multer and Cloudinary simplifies handling file uploads and storage, providing robust features like secure URL generation and transformation.
 
-## IV. Requirements
+## Requirements
 1. **Software:**
    - Node.js (LTS version recommended)
    - Cloudinary account
 2. **Knowledge:**
    - Basic JavaScript and Express.js
 
-## V. Procedural Steps
+## Procedural Steps
 
-### Step 1: Setup Project
+### Setup Project
 1. Initialize a new Node.js project and install necessary dependencies:
    ```bash
    mkdir file-upload
@@ -31,7 +34,7 @@ File upload functionality is a common requirement in web applications, enabling 
    npm install express multer cloudinary dotenv
    ```
 
-### Step 2: Configure Cloudinary
+### Configure Cloudinary
 1. Register for a Cloudinary account [here](https://cloudinary.com/users/register_free).
 2. Get API keys from the Cloudinary dashboard:
    - Navigate to `Settings` > `API Keys`, you will see config options like following
@@ -45,7 +48,7 @@ File upload functionality is a common requirement in web applications, enabling 
    CLOUDINARY_API_SECRET=your_api_secret
    ```
 
-### Step 3: Create File `app.js`
+### Create File `app.js`
 1. **Load Environment Variables:**
    dotenv config should be invoked, it securely stores api key here are the code to bring env variable to Node.js runtime
    ```javascript
@@ -102,30 +105,43 @@ File upload functionality is a common requirement in web applications, enabling 
    });
    ```
 
-### Step 4: Full `app.js` File
-<iframe
-  src="https://codesandbox.io/p/devbox/59xwp5?embed=1&file=%2Fsrc%2Findex.js"
-  style={{
-    width: "100%",
-    height: 500,
-    border: 0,
-    borderRadius: 10,
-    overflow: "hidden"
-  }}
-  title="file-upload-server"
-  allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
-  sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
-/>
+[//]: # (### Full `app.js` File)
+
+[//]: # (<iframe)
+
+[//]: # (  src="https://codesandbox.io/p/devbox/59xwp5?embed=1&file=%2Fsrc%2Findex.js")
+
+[//]: # (  style={{)
+
+[//]: # (    width: "100%",)
+
+[//]: # (    height: 500,)
+
+[//]: # (    border: 0,)
+
+[//]: # (    borderRadius: 10,)
+
+[//]: # (    overflow: "hidden")
+
+[//]: # (  }})
+
+[//]: # (  title="file-upload-server")
+
+[//]: # (  allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking")
+
+[//]: # (  sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts")
+
+[//]: # (/>)
 
 
-## VI. Result
+## Result
 
 Upon completing these steps, you will have a functional file upload system that processes files using Multer and stores them in Cloudinary as base64 encoded strings.
 - The system leverages Cloudinary's secure URL feature for safe public access.
 - Multer's `memoryStorage` is used to handle file uploads directly in memory, ensuring fast processing and secure handling.
 - The conversion to base64 and subsequent upload to Cloudinary provides a straightforward method for storing files in the cloud.
 
-## VII. Common Mistakes
+## Common Mistakes
 - Not matching the file property name in the form-data with the one used in `upload.single('file')`.
 - Forgetting to load environment variables using `dotenv.config()`.
 - Misconfiguration of Cloudinary credentials, leading to authentication errors.

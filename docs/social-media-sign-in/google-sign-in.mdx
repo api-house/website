@@ -437,7 +437,7 @@ And the Google token will be sent to the server for further verification.
         });
         const payload = ticket.getPayload();
         const [user, created] = await User.findOrCreate({
-          where: { email },
+          where: { email: payload.email },
           defaults: {
             name: payload.name,
             email: payload.email,
